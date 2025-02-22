@@ -1,4 +1,4 @@
-from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM  # Transformer, DLinear, Linear, NLinear, 
+from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM, Transformer #, DLinear, Linear, NLinear, 
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
@@ -60,7 +60,7 @@ class Exp_Main(Exp_Basic):
     def _build_model(self):
         model_dict = {
             # 'Autoformer': Autoformer,
-            # 'Transformer': Transformer,
+            'Transformer': Transformer,
             # 'Informer': Informer,
             # 'DLinear': DLinear,
             # 'NLinear': NLinear,
@@ -109,23 +109,12 @@ class Exp_Main(Exp_Basic):
         self.model.eval()
         with torch.no_grad():
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
-                # print('batch_x:',batch_x)
-                # print('batch_x.shape:',batch_x.shape)
-                # print('batch_y:',batch_y)
-                # print('batch_y.shape:',batch_y.shape)
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
-                # print('batch_x : ', batch_x.shape)
-                # print('batch_y : ', batch_y.shape)
-                # print('batch_x_mark : ', batch_x_mark.shape)
-                # print('batch_y_mark : ', batch_y_mark.shape)
-                # batch_x :  torch.Size([32, 96, 139])
-                # batch_y :  torch.Size([32, 240, 139])
-                # batch_x_mark :  torch.Size([32, 96, 4])
-                # batch_y_mark :  torch.Size([32, 240, 4])
+
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
@@ -134,23 +123,23 @@ class Exp_Main(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                             outputs, balance_loss, std = self.model(batch_x)
-                        elif 'Linear' or 'GNN' or 'FC_LSTM' or'ConvLSTM' in self.args.model:
+                        elif 'Linear' in self.args.model or 'GNN' in self.args.model or 'FC_LSTM' in self.args.model or 'ConvLSTM' in self.args.model:
                             outputs = self.model(batch_x)
                         else:
                             if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                                outputs = self.model(batch_x, None, dec_inp, None)
                             else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                                outputs = self.model(batch_x, None, dec_inp, None)
                 else:
                     if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                         outputs, balance_loss, std = self.model(batch_x)
-                    elif 'Linear' or 'GNN' or 'FC_LSTM'or'ConvLSTM'  in self.args.model:
+                    elif 'Linear' in self.args.model or 'GNN' in self.args.model or 'FC_LSTM' in self.args.model or 'ConvLSTM' in self.args.model:
                         outputs = self.model(batch_x)
                     else:
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs = self.model(batch_x, None, dec_inp, None)
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            outputs = self.model(batch_x, None, dec_inp, None)
                 if 'ConvLSTM'  in self.args.model:
                     outputs = outputs[:, -self.args.pred_len:, :, :] # 感觉这个第二维度的选择相当于:，本来模型的linear就设置好了
                     batch_y = batch_y[:, -self.args.pred_len:, :, :].to(self.device)  #因为batch_y :  torch.Size([32, 240, 139])，要选择后pred_len的长度算损失
@@ -165,9 +154,7 @@ class Exp_Main(Exp_Basic):
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
                 
-                if(self.loss_selection == 'nll'):
-                    loss = criterion(pred, std, true)
-                elif(self.loss_selection == 'weighted'):
+                if(self.loss_selection in ['nll', 'weighted']):
                     loss = criterion(pred, std, true)
                 else:
                     loss = criterion(pred, true)
@@ -213,7 +200,8 @@ class Exp_Main(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
-
+                # print('batch_x.shape:',batch_x.shape)   #[B, T, C]
+                # print('batch_y.shape:',batch_y.shape)
                 # print('batch_x.shape:',batch_x.shape)
                 # print("Min:", torch.min(batch_x).item())
                 # print("Max:", torch.max(batch_x).item())
@@ -248,13 +236,13 @@ class Exp_Main(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                             outputs, balance_loss, std = self.model(batch_x)
-                        elif 'Linear'  or 'GNN' or 'FC_LSTM' or'ConvLSTM'in self.args.model:
+                        elif 'Linear' in self.args.model or 'GNN' in self.args.model or 'FC_LSTM' in self.args.model or 'ConvLSTM' in self.args.model:
                             outputs = self.model(batch_x)
                         else:
                             if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                                outputs = self.model(batch_x, None, dec_inp, None)
                             else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                                outputs = self.model(batch_x, None, dec_inp, None)
 
                         if 'ConvLSTM'  in self.args.model:
                             outputs = outputs[:, -self.args.pred_len:, :, :] # 感觉这个第二维度的选择相当于:，本来模型的linear就设置好了
@@ -279,10 +267,10 @@ class Exp_Main(Exp_Basic):
                             # print(i,'outputs.shape:', outputs.shape)   # outputs.shape: torch.Size([32, 192, 139])
                     else:
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs = self.model(batch_x, None, dec_inp, None)
                             
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark, batch_y)
+                            outputs = self.model(batch_x, None, dec_inp, None)
                     # print(outputs.shape,batch_y.shape)
                     if 'ConvLSTM'  in self.args.model:
                         outputs = outputs[:, -self.args.pred_len:, :, :] # 感觉这个第二维度的选择相当于:，本来模型的linear就设置好了
@@ -297,9 +285,10 @@ class Exp_Main(Exp_Basic):
                     if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                         std = std[:, -self.args.pred_len:, f_dim:]
                         # print("balance_loss:", balance_loss)
-                    if(self.loss_selection == 'nll'):
+                    if(self.loss_selection in ['nll', 'weighted']):
                         loss = criterion(outputs, std, batch_y)
-                    elif(self.loss_selection == 'weighted'):
+                    else:
+                        loss = criterion(outputs, batch_y)
                         # print('outputs:',outputs.shape)
                         # print("Min:", torch.min(outputs).item())
                         # print("Max:", torch.max(outputs).item())
@@ -313,11 +302,6 @@ class Exp_Main(Exp_Basic):
                             # print("median:", torch.median(std).item())
                             # print("Mean:", torch.mean(std).item())
                             # print("Std:", torch.std(std).item())  
-                        
-                        loss = criterion(outputs, std, batch_y)
-                    else:
-                        loss = criterion(outputs, batch_y)
-
                     
                     # print("loss：", loss)
                     if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
@@ -347,9 +331,9 @@ class Exp_Main(Exp_Basic):
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             if not self.args.train_only:
-                print("vali(vali_data)")
+                # print("vali(vali_data)")
                 vali_loss = self.vali(vali_data, vali_loader, criterion)    #######
-                print("vali(test_data)")
+                # print("vali(test_data)")
                 test_loss = self.vali(test_data, test_loader, criterion)    ######
 
                 print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format( epoch + 1, train_steps, train_loss, vali_loss, test_loss))
@@ -395,7 +379,8 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-
+                # print('batch_x.shape:',batch_x.shape)       # batch_x.shape: torch.Size([32, 90, 112])
+                # print('batch_y.shape:',batch_y.shape)       # batch_y.shape: torch.Size([32, 30, 112])
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
@@ -407,13 +392,13 @@ class Exp_Main(Exp_Basic):
                     with torch.cuda.amp.autocast():
                         if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                             outputs, balance_loss, std = self.model(batch_x)
-                        elif 'Linear' or 'GNN' or 'FC_LSTM'or'ConvLSTM'   in self.args.model:
+                        elif 'Linear' in self.args.model or 'GNN' in self.args.model or 'FC_LSTM' in self.args.model or 'ConvLSTM' in self.args.model:
                             outputs = self.model(batch_x)
                         else:
                             if self.args.output_attention:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                                outputs = self.model(batch_x, None, dec_inp, None)
                             else:
-                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                                outputs = self.model(batch_x, None, dec_inp, None)
                 else:
                     if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
                         outputs, balance_loss ,std= self.model(batch_x)
@@ -422,14 +407,13 @@ class Exp_Main(Exp_Basic):
                         # print('test():std.shape：', std.shape)
                         if torch.any(std <= 0):
                             raise ValueError("标准差必须大于零")
-                    elif 'Linear'  or 'GNN' or 'FC_LSTM'or'ConvLSTM'  in self.args.model:
+                    elif 'Linear' in self.args.model or 'GNN' in self.args.model or 'FC_LSTM' in self.args.model or 'ConvLSTM' in self.args.model:
                             outputs = self.model(batch_x)
                     else:
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
+                            outputs = self.model(batch_x, None, dec_inp, None)
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            outputs = self.model(batch_x, None, dec_inp, None)
                 if 'ConvLSTM'  in self.args.model:
                     outputs = outputs[:, -self.args.pred_len:, :, :] # 感觉这个第二维度的选择相当于:，本来模型的linear就设置好了
                     batch_y = batch_y[:, -self.args.pred_len:, :, :].to(self.device)  #因为batch_y :  torch.Size([32, 240, 139])，要选择后pred_len的长度算损失
@@ -445,29 +429,29 @@ class Exp_Main(Exp_Basic):
 
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
-                
+                input = batch_x.detach().cpu().numpy()
 
                 pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
                 true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
                 #print(pred.shape) (32, 96, 7)
                 preds.append(pred)
                 trues.append(true)
-                inputx.append(batch_x.detach().cpu().numpy())
+                inputx.append(input)
                 
 
                 # print('test____i____', len(preds))
 
-                # if i % 20 == 0:
-                #     if batch_x.dim() == 4:
-                #         # 如果是4维的，取 [:,:,:,0]，然后变为3维
-                #         batch_x = batch_x[:, :, :, 0]
-                #     elif batch_x.dim() != 3:
-                #         raise ValueError("Input must be either 3D or 4D")
-                #     input = batch_x.detach().cpu().numpy()
+                if i % 20 == 0:
+                    # if batch_x.dim() == 4:
+                    #     # 如果是4维的，取 [:,:,:,0]，然后变为3维
+                    #     batch_x = batch_x[:, :, :, 0]
+                    # elif batch_x.dim() != 3:
+                    #     raise ValueError("Input must be either 3D or 4D")
+                    input = input
 
-                #     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                #     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                #     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
         
         # 如果设置了测试flop，则进行测试并退出
         if self.args.test_flop:
@@ -476,13 +460,12 @@ class Exp_Main(Exp_Basic):
         preds = np.concatenate(preds,axis=0)
         trues = np.concatenate(trues,axis=0)
         inputx = np.concatenate(inputx,axis=0)
-        print('test():preds.shape：', preds.shape)
-        print('test():trues.shape：', trues.shape)
+        print('test shape:', preds.shape, trues.shape, inputx.shape)
         
 
         if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
             stds = np.concatenate(stds, axis=0)
-            print('test():stds.shape：', stds.shape)
+            print('test prob shape：', stds.shape)
 
         #print(preds.shape[-2])
 
@@ -507,7 +490,15 @@ class Exp_Main(Exp_Basic):
         # stds = test_data.scaler.inverse_transform(stds, self.type)
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
-        print('mse:{}, mae:{}'.format(mse, mae))
+        print('corr：{}, mse:{}, rmse:{}, mae:{}'.format(corr, mse, rmse, mae))
+        # 打印每个指标的形状信息
+        # print(f"mae shape: {np.array(mae).shape if isinstance(mae, (list, np.ndarray)) else 'scalar'}")
+        # print(f"mse shape: {np.array(mse).shape if isinstance(mse, (list, np.ndarray)) else 'scalar'}")
+        # print(f"rmse shape: {np.array(rmse).shape if isinstance(rmse, (list, np.ndarray)) else 'scalar'}")
+        # print(f"mape shape: {np.array(mape).shape if isinstance(mape, (list, np.ndarray)) else 'scalar'}")
+        # print(f"mspe shape: {np.array(mspe).shape if isinstance(mspe, (list, np.ndarray)) else 'scalar'}")
+        # print(f"rse shape: {np.array(rse).shape if isinstance(rse, (list, np.ndarray)) else 'scalar'}")
+        # print(f"corr shape: {np.array(corr).shape if isinstance(corr, (list, np.ndarray)) else 'scalar'}")
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}, rmse:{}, rse:{}, corr:{}'.format(mse, mae, rmse, rse, corr))
@@ -515,16 +506,16 @@ class Exp_Main(Exp_Basic):
         f.write('\n')
         f.close()
 
-        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,rse, corr]))
+        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe,rse, corr]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-        np.save(folder_path + 'x.npy', inputx)
+        np.save(folder_path + 'inputx.npy', inputx)
         if 'PathFormer' in self.args.model or 'MoE' in self.args.model:
             np.save(folder_path + 'std.npy', stds)
 
         return
 
-    def predict(self, setting, load=False):
+    def predict(self, setting, load=False):     #未改
         pred_data, pred_loader = self._get_data(flag='pred')
 
         if load:

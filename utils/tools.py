@@ -134,15 +134,15 @@ class StandardScaler():
             return (data - self.mean) / self.std
 
     def inverse_transform(self, data, type):
-        if(type == 'grid'):
+        if(type == 'grid' or type == 'sv'):
             mean_sst = self.mean  
             std_sst = self.std
             print('mean_sst:', mean_sst.shape)
             print('std_sst:', std_sst.shape)
-        else:
-            # 仅提取 SST 的均值和标准差
+        elif(type == 'mv'):
             mean_sst = self.mean[:, 0]  # 假设 SST 是每个点的第一个变量
-            std_sst = self.std[:, 0]
+            std_sst = self.std[:, 0]  # 假设 SST 是每个点的第一个变量
+
         
         # 检查数据是否为张量，并执行适当的操作
         if torch.is_tensor(data):
@@ -150,17 +150,15 @@ class StandardScaler():
             mean_sst = torch.from_numpy(mean_sst).type_as(data).to(data.device)
             std_sst = torch.from_numpy(std_sst).type_as(data).to(data.device)
 
-            
+            # 扩展均值和标准差的形状以匹配数据形状
             if(type == 'grid'):
                 mean_sst = mean_sst.unsqueeze(0).unsqueeze(0)     # 形状为 [1, 1, 16, 16]
                 std_sst = std_sst.unsqueeze(0).unsqueeze(0)
                 print('mean_sst:', mean_sst.shape)
                 print('std_sst:', std_sst.shape)
-            else:
-                # 扩展均值和标准差的形状以匹配数据形状
+            elif(type == 'mv' or type == 'sv'):
                 mean_sst = mean_sst.unsqueeze(0).unsqueeze(0)  # 形状为 [1, 1, 112]
-                std_sst = std_sst.unsqueeze(0).unsqueeze(0)  # 形状为 [1, 1, 112]
-            
+                std_sst = std_sst.unsqueeze(0).unsqueeze(0)  
             # 反归一化操作
             return (data * std_sst) + mean_sst
 
@@ -169,7 +167,7 @@ class StandardScaler():
             if(type == 'grid'):
                 mean_sst = np.tile(mean_sst, (data.shape[0], data.shape[1], 1, 1))
                 std_sst = np.tile(std_sst, (data.shape[0], data.shape[1], 1, 1))
-            else:
+            elif(type == 'mv' or type == 'sv'):
                 mean_sst = np.tile(mean_sst, (data.shape[0], data.shape[1], 1, ))
                 std_sst = np.tile(std_sst, (data.shape[0], data.shape[1], 1,   ))
 

@@ -444,7 +444,7 @@ class Model(nn.Module):
         # x = self.dense(x)
         # x = x.view(b, time, node, 1)
         # x = x.squeeze(-1)
-        x = x[:,:,:,0]  # 取温度数据
+        # x = x[:,:,:,0]  # 取温度数据
         # x: [Batch, Input length, Variables]
         # 如果启用了解决数据转移的简单策略
         if self.anti_ood:

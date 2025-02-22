@@ -15,6 +15,8 @@ np.random.seed(fix_seed)
 parser = argparse.ArgumentParser(description='Autoformer & Transformer family for Time Series Forecasting')
 
 # basic config
+parser.add_argument('--task_name', type=str, required=True, default='long_term_forecast',
+                        help='task name, options:[long_term_forecast, short_term_forecast, imputation, classification, anomaly_detection]')
 parser.add_argument('--is_training', type=int, required=True, default=1, help='status')     # --is_training 1
 parser.add_argument('--train_only', type=bool, required=False, default=False, help='perform training on full input dataset without validation an.d testing')
 parser.add_argument('--model_id', type=str, required=True, default='test', help='model id') # --model_id zqx01
@@ -50,7 +52,7 @@ parser.add_argument('--embed_type', type=int, default=0, help='0: default 1: val
 parser.add_argument('--enc_in', type=int, default=7, help='encoder input size')
 parser.add_argument('--dec_in', type=int, default=7, help='decoder input size')
 parser.add_argument('--c_out', type=int, default=7, help='output size')
-parser.add_argument('--d_model', type=int, default=16, help='dimension of model')  #重名
+parser.add_argument('--d_model', type=int, default=24, help='dimension of model')  #重名
 parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
 parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
 parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
@@ -79,12 +81,12 @@ parser.add_argument('--residual_connection', type=int, default=0)
 parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
 parser.add_argument('--itr', type=int, default=2, help='experiments times')
 parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
-parser.add_argument('--batch_size', type=int, default=512, help='batch size of train input data')
+parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
 parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
 parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
 parser.add_argument('--des', type=str, default='test', help='exp description')
-parser.add_argument('--loss', type=str, default='nll', help='loss function')
-parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
+parser.add_argument('--loss', type=str, default='MSE', help='loss function')
+parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
 parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 # path’s optimization
 parser.add_argument('--pct_start', type=float, default=0.4, help='pct_start')
@@ -102,7 +104,7 @@ parser.add_argument('--use_tgcn', type=int, default=1, help='use cross-scale gnn
 parser.add_argument('--use_ngcn', type=int, default=1, help='use cross-variable gnn')
 parser.add_argument('--anti_ood', type=int, default=1, help='simple strategy to solve data shift')
 parser.add_argument('--scale_number', type=int, default=4, help='scale number')
-parser.add_argument('--hidden', type=int, default=8, help='channel dim')
+parser.add_argument('--hidden', type=int, default=8, help='channel dim')    #CrossGNN的d_model
 parser.add_argument('--tk', type=int, default=5, help='constant w.r.t corss-scale neighbors')  #跨尺度邻居数量
 
 args = parser.parse_args()

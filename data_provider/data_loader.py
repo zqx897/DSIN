@@ -408,8 +408,6 @@ class Dataset_Pred(Dataset):
     def inverse_transform(self, data, type):
         return self.scaler.inverse_transform(data, type)
 
-
-
 class Dataset_mv_Custom(Dataset):
     def __init__(self, root_path, data_path='bohai_mv.npy', flag='train', size=None, 
                  scale=True, timeenc=0, freq='h', train_only=False):
@@ -428,8 +426,8 @@ class Dataset_mv_Custom(Dataset):
         self.set_type = type_map[flag]
 
         self.scale = scale
-        self.timeenc = timeenc  # 未用
-        self.freq = freq        # 未用
+        # self.timeenc = timeenc  # 未用
+        # self.freq = freq        # 未用
         self.train_only = train_only
 
         self.root_path = root_path
@@ -478,8 +476,8 @@ class Dataset_mv_Custom(Dataset):
 
         seq_x = self.data_x[s_begin:s_end]
         seq_y = self.data_y[r_begin:r_end]
-        seq_x_mark = 0      #临时占位
-        seq_y_mark = 0
+        seq_x_mark = 0    #临时占位
+        seq_y_mark = 0    #临时占位
 
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
@@ -488,7 +486,87 @@ class Dataset_mv_Custom(Dataset):
 
     def inverse_transform(self, data, type):
         return self.scaler.inverse_transform(data, type)
-    
+
+class Dataset_sv_Custom(Dataset):
+    def __init__(self, root_path, data_path='bohai_mv.npy', flag='train', size=None, 
+                 scale=True, timeenc=0, freq='h', train_only=False):
+        # size [seq_len, label_len, pred_len]
+        if size is None:
+            self.seq_len = 24 * 4 * 4
+            self.label_len = 24 * 4
+            self.pred_len = 24 * 4
+        else:
+            self.seq_len = size[0]
+            self.label_len = size[1]
+            self.pred_len = size[2]
+
+        assert flag in ['train', 'test', 'val']
+        type_map = {'train': 0, 'val': 1, 'test': 2}
+        self.set_type = type_map[flag]
+
+        self.scale = scale
+        # self.timeenc = timeenc  # 未用
+        # self.freq = freq        # 未用
+        self.train_only = train_only
+
+        self.root_path = root_path
+        self.data_path = data_path  # os.path.join(root_path, 'bohai_mv.npy')
+        self.__read_data__()
+
+    def __read_data__(self):
+        self.scaler = StandardScaler()
+        data = np.load(os.path.join(self.root_path, self.data_path))
+        #单变量[samples, nodes, features[0]:SST]
+        data = data[:, :, 0]
+        num_samples = data.shape[0]
+        num_train = int(num_samples * 0.7 if not self.train_only else num_samples)
+        num_test = int(num_samples * 0.2)
+        num_vali = num_samples - num_train - num_test
+
+        border1s = [0, 
+                    num_train - self.seq_len, 
+                    num_samples - num_test - self.seq_len]
+        border2s = [num_train, 
+                    num_train + num_vali, 
+                    num_samples]
+        border1 = border1s[self.set_type]
+        border2 = border2s[self.set_type]
+
+        if self.scale:
+            shape = data.shape
+            train_data = data[border1s[0]:border2s[0]] 
+            self.scaler.fit(train_data)  # Fit on the training set
+            print('std.shape',self.scaler.std.shape)
+            print('mean.shape',self.scaler.mean.shape)
+            # data = data.reshape(data.shape[0], -1)  # Flatten data to fit scaler
+            data = self.scaler.transform(data)  # Scale data
+            # data = data.reshape(shape)  # Reshape back to original shape
+
+        self.data_x = data[border1:border2]
+          # Assuming target is the same as input
+        self.data_y = data[border1:border2]
+        print(self.data_x.shape)
+        print(self.data_y.shape)
+
+    def __getitem__(self, index):
+        s_begin = index
+        s_end = s_begin + self.seq_len
+        r_begin = s_end
+        r_end = r_begin + self.pred_len
+
+        seq_x = self.data_x[s_begin:s_end]
+        seq_y = self.data_y[r_begin:r_end]
+        seq_x_mark = 0    #临时占位
+        seq_y_mark = 0    #临时占位
+
+        return seq_x, seq_y, seq_x_mark, seq_y_mark
+
+    def __len__(self):
+        return len(self.data_x) - self.seq_len - self.pred_len + 1
+
+    def inverse_transform(self, data, type):
+        return self.scaler.inverse_transform(data, type)
+
 class Dataset_grid_Custom(Dataset):
     def __init__(self, root_path, data_path='bohai_mv.npy', flag='train', size=None, 
                  scale=True, timeenc=0, freq='h', train_only=False):

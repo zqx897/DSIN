@@ -6,10 +6,10 @@ def RSE(pred, true):
 
 
 def CORR(pred, true):
-    u = ((true - true.mean(0)) * (pred - pred.mean(0))).sum(0)
-    d = np.sqrt(((true - true.mean(0)) ** 2 * (pred - pred.mean(0)) ** 2).sum(0))
+    u = ((true - true.mean()) * (pred - pred.mean())).sum()
+    d = np.sqrt(((true - true.mean()) ** 2 * (pred - pred.mean()) ** 2).sum())
     d += 1e-12
-    return 0.01*(u / d).mean(-1)
+    return 0.01*(u / d)
 
 
 def MAE(pred, true):
