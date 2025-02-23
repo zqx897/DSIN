@@ -1,8 +1,8 @@
-model_name=Transformer
+model_name=FEDformer
 type=sv
-area=bohai
+area=south_sea
 gpu=0
-node_num=112
+node_num=1665
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
@@ -12,7 +12,6 @@ fi
 if [ ! -d "./logs/${area}/${model_name}" ]; then
   mkdir ./logs/${area}/${model_name}
 fi
-
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -38,7 +37,8 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 30 >logs/${area}/${model_name}_90_30.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_30.log
+
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -64,7 +64,8 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 30 >logs/${area}/${model_name}_90_90.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_90.log
+
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -90,7 +91,7 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 30 >logs/${area}/${model_name}_90_180.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_180.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -116,4 +117,4 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 30 >logs/${area}/${model_name}_90_365.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_365.log

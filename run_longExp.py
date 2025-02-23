@@ -65,7 +65,9 @@ parser.add_argument('--embed', type=str, default='timeF', help='time features en
 parser.add_argument('--activation', type=str, default='gelu', help='activation')
 parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 parser.add_argument('--do_predict', action='store_true', help='whether to predict unseen future data')  #重复
-
+#TimesNet
+parser.add_argument('--top_k', type=int, default=5, help='for TimesBlock <- TimsNet')   #同CrossGNN的scale_number
+parser.add_argument('--num_kernels', type=int, default=6, help='for Inception')
 #pathformer model
 parser.add_argument('--num_nodes', type=int, default=21)    ########    同 enc_in=112
 parser.add_argument('--layer_nums', type=int, default=2)    ########    3

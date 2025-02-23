@@ -1,4 +1,4 @@
-from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM, Transformer #, DLinear, Linear, NLinear, 
+from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM, Transformer, TimesNet, FEDformer #, DLinear, Linear, NLinear, 
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
@@ -61,10 +61,12 @@ class Exp_Main(Exp_Basic):
         model_dict = {
             # 'Autoformer': Autoformer,
             'Transformer': Transformer,
+            'FEDformer': FEDformer,
             # 'Informer': Informer,
             # 'DLinear': DLinear,
             # 'NLinear': NLinear,
             # 'Linear': Linear,
+            'TimesNet': TimesNet,
             'FC_LSTM':FC_LSTM,
             'ConvLSTM':ConvLSTM,
             'PathFormer':PathFormer,
@@ -379,8 +381,8 @@ class Exp_Main(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
-                # print('batch_x.shape:',batch_x.shape)       # batch_x.shape: torch.Size([32, 90, 112])
-                # print('batch_y.shape:',batch_y.shape)       # batch_y.shape: torch.Size([32, 30, 112])
+                # print('batch_x.shape:',batch_x.shape)       # batch_x.shape: torch.Size([32, 90, 112])   if type=="mv" ： batch_x.shape: torch.Size([9, 90, 112, 3])
+                # print('batch_y.shape:',batch_y.shape)       # batch_y.shape: torch.Size([32, 30, 112])                    batch_y.shape: torch.Size([9, 30, 112])
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
@@ -442,12 +444,8 @@ class Exp_Main(Exp_Basic):
                 # print('test____i____', len(preds))
 
                 if i % 20 == 0:
-                    # if batch_x.dim() == 4:
-                    #     # 如果是4维的，取 [:,:,:,0]，然后变为3维
-                    #     batch_x = batch_x[:, :, :, 0]
-                    # elif batch_x.dim() != 3:
-                    #     raise ValueError("Input must be either 3D or 4D")
-                    input = input
+                    if(self.args.type == 'mv'):
+                        input = input[:,:,:,0]
 
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
