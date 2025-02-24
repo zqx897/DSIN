@@ -1,4 +1,4 @@
-gpu=2
+gpu=3
 area=bohai
 model_name=snMoE_CrossGNN
 if [ ! -d "./logs" ]; then
@@ -15,11 +15,11 @@ fi
 
 seq_len=90
 node_num=112 # 112:bohai   1665:south_sea
-d_model=24
-hidden=8
+d_model=128
+hidden=128
 loss=mse 
 for tk in  5 ; do
-  for pred_len in 30 90 180 365; do   
+  for pred_len in  180 365; do   
       python -u run_longExp.py \
       --task_name long_term_forecast \
       --is_training 1 \
@@ -46,7 +46,7 @@ for tk in  5 ; do
       --des 'Exp' \
       --gpu $gpu \
       --learning_rate 0.0001 \
-      --batch_size 32\
+      --batch_size 8\
       --loss $loss \
       --itr 1 >logs/${area}/${model_name}/${seq_len}_${pred_len}_${loss}_dm${d_model}_tk${tk}_hd${hidden}.log
   done

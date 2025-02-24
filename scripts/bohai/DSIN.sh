@@ -1,6 +1,13 @@
-gpu=0
+gpu=2
 area=bohai
 model_name=EA_snMoE_CrossGNN
+seq_len=90
+node_num=112 # 112:bohai   1665:south_sea
+d_model=128
+hidden=128
+global_hidden=5
+loss=weighted 
+
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
@@ -13,12 +20,6 @@ if [ ! -d "./logs/${area}/${model_name}" ]; then
   mkdir ./logs/${area}/${model_name}
 fi
 
-seq_len=90
-node_num=112 # 112:bohai   1665:south_sea
-d_model=64
-hidden=128
-global_hidden=5
-loss=weighted 
 for tk in  5 ; do
   for pred_len in 30 90 180 365; do   
       python -u run_longExp.py \

@@ -15,8 +15,8 @@ fi
 
 seq_len=90
 node_num=112 # 112:bohai   1665:south_sea
-d_model=24
-hidden=8
+d_model=128
+hidden=128
 global_hidden=5
 loss=mse 
 for tk in  5 ; do
