@@ -1,4 +1,4 @@
-model_name=Transformer
+model_name=Autoformer
 type=sv
 area=bohai
 gpu=0
@@ -13,7 +13,6 @@ fi
 if [ ! -d "./logs/${area}/${model_name}" ]; then
   mkdir ./logs/${area}/${model_name}
 fi
-
 
 python -u run_longExp.py \
   --task_name long_term_forecast \

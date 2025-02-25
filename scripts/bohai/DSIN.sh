@@ -1,11 +1,11 @@
-gpu=2
+gpu=3
 area=bohai
 model_name=EA_snMoE_CrossGNN
 seq_len=90
 node_num=112 # 112:bohai   1665:south_sea
-d_model=128
-hidden=128
-global_hidden=5
+d_model=32
+hidden=32
+global_hidden=4
 loss=weighted 
 
 if [ ! -d "./logs" ]; then
