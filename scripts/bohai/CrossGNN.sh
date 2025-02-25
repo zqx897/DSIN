@@ -15,7 +15,7 @@ fi
 
 seq_len=90
 node_num=112 # 112:bohai   1665:south_sea
-hidden=8
+hidden=64
 for tk in  5 ; do
   for pred_len in 30 90 180 365; do   
       python -u run_longExp.py \
