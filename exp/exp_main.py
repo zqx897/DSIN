@@ -1,4 +1,4 @@
-from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM, Transformer, TimesNet, FEDformer, Autoformer #, DLinear, Linear, NLinear, 
+from models import CrossGNN, EA_CrossGNN, EM_CrossGNN, snMoE_CrossGNN, EA_snMoE_CrossGNN, PathFormer, FC_LSTM, ConvLSTM, Transformer, TimesNet, FEDformer, Autoformer, iTransformer #, DLinear, Linear, NLinear, 
 from data_provider.data_factory import data_provider
 from exp.exp_basic import Exp_Basic
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
@@ -62,6 +62,7 @@ class Exp_Main(Exp_Basic):
             'Autoformer': Autoformer,
             'Transformer': Transformer,
             'FEDformer': FEDformer,
+            'iTransformer': iTransformer,
             # 'Informer': Informer,
             # 'DLinear': DLinear,
             # 'NLinear': NLinear,
