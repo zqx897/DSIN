@@ -3,8 +3,8 @@ model_name=TimesNet
 type=sv
 gpu=0
 node_num=112
-d_ff=128
-d_model=16
+d_ff=64
+d_model=64
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
