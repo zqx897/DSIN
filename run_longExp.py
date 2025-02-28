@@ -39,7 +39,9 @@ parser.add_argument('--pred_len', type=int, default=96, help='prediction sequenc
 # FC_LSTM&ConvLSTM
 parser.add_argument('--input_dim', type=int, default=1, help='input feature:sst')
 parser.add_argument('--hidden_dim', type=int, default=64, help='lstm cell hidden_dim')
-
+# SegRNN
+parser.add_argument('--seg_len', type=int, default=96,
+                        help='the length of segmen-wise iteration of SegRNN')
 # ConvLSTM
 # parser.add_argument('--kernel_size', type=int, default=1, help='convkstm cell conv kernel_size')
 # parser.add_argument('--num_layers', type=int, default=2, help='convlstm num_layers')
