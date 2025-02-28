@@ -1,4 +1,4 @@
-model_name=iTransformer
+model_name=FiLM
 type=sv
 area=bohai
 gpu=0
@@ -28,20 +28,18 @@ python -u run_longExp.py \
   --seq_len 90 \
   --label_len 45 \
   --pred_len 30 \
-  --e_layers 4 \
+  --e_layers 2 \
   --d_layers 1 \
   --factor 3 \
   --enc_in $node_num \
   --dec_in $node_num \
   --c_out $node_num \
-  --d_model $d_model \
   --des 'Exp' \
-  --d_ff $d_ff \
+  --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  --itr 1 \
   --gpu $gpu \
-  --train_epochs 30 >logs/${area}/${model_name}/90_30_dm${d_model}_dff${d_ff}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_30.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -56,21 +54,19 @@ python -u run_longExp.py \
   --seq_len 90 \
   --label_len 45 \
   --pred_len 90 \
-  --e_layers 4 \
+  --e_layers 2 \
   --d_layers 1 \
   --factor 3 \
   --enc_in $node_num \
   --dec_in $node_num \
   --c_out $node_num \
-  --d_model $d_model \
   --des 'Exp' \
-  --d_ff $d_ff \
+  --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  --itr 1 \
   --gpu $gpu \
-  --train_epochs 30 >logs/${area}/${model_name}/90_90_dm${d_model}_dff${d_ff}.log
- 
+  --train_epochs 30 >logs/${area}/${model_name}/90_90.log
+
 python -u run_longExp.py \
   --task_name long_term_forecast \
   --is_training 1 \
@@ -84,20 +80,18 @@ python -u run_longExp.py \
   --seq_len 90 \
   --label_len 45 \
   --pred_len 180\
-  --e_layers 4 \
+  --e_layers 2 \
   --d_layers 1 \
   --factor 3 \
   --enc_in $node_num \
   --dec_in $node_num \
   --c_out $node_num \
-  --d_model $d_model \
   --des 'Exp' \
-  --d_ff $d_ff \
+  --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  --itr 1 \
   --gpu $gpu \
-  --train_epochs 30 >logs/${area}/${model_name}/90_180_dm${d_model}_dff${d_ff}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_180.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -112,17 +106,15 @@ python -u run_longExp.py \
   --seq_len 90 \
   --label_len 45 \
   --pred_len 365 \
-  --e_layers 4 \
+  --e_layers 2 \
   --d_layers 1 \
   --factor 3 \
   --enc_in $node_num \
   --dec_in $node_num \
   --c_out $node_num \
-  --d_model $d_model \
   --des 'Exp' \
-  --d_ff $d_ff \
+  --itr 1 \
   --batch_size 16 \
   --learning_rate 0.001 \
-  --itr 1 \
   --gpu $gpu \
-  --train_epochs 30 >logs/${area}/${model_name}/90_365_dm${d_model}_dff${d_ff}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_365.log
