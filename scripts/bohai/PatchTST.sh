@@ -3,8 +3,8 @@ type=sv
 area=bohai
 gpu=0
 node_num=112
-d_model=512
-d_ff=512
+d_model=128
+d_ff=128
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
@@ -126,7 +126,7 @@ python -u run_longExp.py \
   --d_ff $d_ff \
   --top_k 5 \
   --des 'Exp' \
-  --batch_size 16 - \
+  --batch_size 16 \
   --itr 1 \
   --learning_rate 0.0001 \
   --gpu $gpu \
