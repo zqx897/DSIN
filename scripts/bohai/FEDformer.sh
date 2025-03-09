@@ -1,7 +1,7 @@
 model_name=FEDformer
 type=sv
 area=bohai
-gpu=0
+gpu=1
 node_num=112
 if [ ! -d "./logs" ]; then
   mkdir ./logs
@@ -49,7 +49,7 @@ python -u run_longExp.py \
   --model $model_name \
   --data sv_custom \
   --type $type \
-  --features M \
+  --features M \a
   --seq_len 90 \
   --label_len 45 \
   --pred_len 90 \

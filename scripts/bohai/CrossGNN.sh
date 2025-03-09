@@ -42,7 +42,7 @@ for tk in  5 ; do
       --des 'Exp' \
       --gpu $gpu \
       --learning_rate 0.0001 \
-      --batch_size 32\
+      --batch_size 16\
       --itr 1 >logs/${area}/${model_name}/${seq_len}_${pred_len}_hd${hidden}_tk${tk}.log
   done
 done

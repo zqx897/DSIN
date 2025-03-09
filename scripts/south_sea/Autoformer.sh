@@ -1,9 +1,9 @@
 model_name=Autoformer
 type=sv
-area=bohai
+area=south_sea
 gpu=0
-node_num=112
-d_model=16
+node_num=1665
+d_model=24
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi

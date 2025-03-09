@@ -1,4 +1,4 @@
-gpu=2
+gpu=0
 area=south_sea
 model_name=CrossGNN
 if [ ! -d "./logs" ]; then
@@ -15,9 +15,9 @@ fi
 
 seq_len=90
 node_num=1665 # 112:bohai   1665:south_sea
-hidden=8
+hidden=32
 for tk in  5 ; do
-  for pred_len in 30 90 180 365; do   
+  for pred_len in  90 180 365; do   
       python -u run_longExp.py \
       --task_name long_term_forecast \
       --is_training 1 \
@@ -42,7 +42,7 @@ for tk in  5 ; do
       --des 'Exp' \
       --gpu $gpu \
       --learning_rate 0.0001 \
-      --batch_size 32\
+      --batch_size 16\
       --itr 1 >logs/${area}/${model_name}/${seq_len}_${pred_len}_dm${hidden}_tk${tk}.log
   done
 done

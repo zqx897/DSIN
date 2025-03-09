@@ -41,7 +41,7 @@ python -u run_longExp.py \
   --learning_rate 0.001 \
   --itr 1 \
   --gpu $gpu \
-  --train_epochs 30 >logs/${area}/${model_name}/90_30_dm${d_model}_dff${d_ff}.log
+  --train_epochs 30 >logs/${area}/${model_name}/1_90_30_dm${d_model}_dff${d_ff}.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \

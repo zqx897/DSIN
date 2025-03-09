@@ -1,7 +1,7 @@
 model_name=FEDformer
 type=sv
 area=south_sea
-gpu=0
+gpu=1
 node_num=1665
 if [ ! -d "./logs" ]; then
   mkdir ./logs

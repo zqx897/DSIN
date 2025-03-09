@@ -1,12 +1,6 @@
-gpu=3
+gpu=1
 area=south_sea
 model_name=EA_CrossGNN
-seq_len=90
-node_num=1665 # 112:bohai   1665:south_sea
-d_model=24
-hidden=8
-global_hidden=5
-loss=mse 
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
@@ -19,6 +13,12 @@ if [ ! -d "./logs/${area}/${model_name}" ]; then
   mkdir ./logs/${area}/${model_name}
 fi
 
+seq_len=90
+node_num=1665 # 112:bohai   1665:south_sea
+d_model=32
+hidden=32
+global_hidden=8
+loss=mse 
 for tk in  5 ; do
   for pred_len in 30 90 180 365; do   
       python -u run_longExp.py \
@@ -47,7 +47,7 @@ for tk in  5 ; do
       --des 'Exp' \
       --gpu $gpu \
       --learning_rate 0.0001 \
-      --batch_size 32\
+      --batch_size 16\
       --loss $loss \
       --global_hidden $global_hidden\
       --itr 1 >logs/${area}/${model_name}/${seq_len}_${pred_len}_${loss}_dm${d_model}_tk${tk}_hd${hidden}_gh${global_hidden}.log

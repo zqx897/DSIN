@@ -1,10 +1,10 @@
 area=south_sea
 model_name=TimesNet
 type=sv
-gpu=0
+gpu=2
 node_num=1665
-d_ff=128
-d_model=16
+d_ff=64
+d_model=64
 if [ ! -d "./logs" ]; then
   mkdir ./logs
 fi
