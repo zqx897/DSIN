@@ -1,7 +1,7 @@
 model_name=PatchTST
 type=sv
 area=bohai
-gpu=0
+gpu=3
 node_num=112
 d_model=128
 d_ff=128

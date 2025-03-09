@@ -1,7 +1,7 @@
 model_name=Transformer
 type=sv
 area=bohai
-gpu=0
+gpu=3
 node_num=112
 d_model=16
 if [ ! -d "./logs" ]; then
@@ -39,7 +39,7 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 2 >logs/${area}/${model_name}/90_30_dm${d_model}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_30_dm${d_model}.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -66,7 +66,7 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 2 >logs/${area}/${model_name}/90_90_dm${d_model}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_90_dm${d_model}.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -93,7 +93,7 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 2 >logs/${area}/${model_name}/90_180_dm${d_model}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_180_dm${d_model}.log
 
 python -u run_longExp.py \
   --task_name long_term_forecast \
@@ -120,4 +120,4 @@ python -u run_longExp.py \
   --gpu $gpu \
   --itr 1 \
   --learning_rate 0.0001 \
-  --train_epochs 2 >logs/${area}/${model_name}/90_365_dm${d_model}.log
+  --train_epochs 30 >logs/${area}/${model_name}/90_365_dm${d_model}.log

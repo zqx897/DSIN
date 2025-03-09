@@ -98,7 +98,7 @@ def plot_heatmaps(root_dir, output_dir):
                 im = ax.imshow(rmse_map, 
                              cmap='jet',  # 更柔和的颜色映射 jet viridis plasma
                              origin='lower',  # 反转y轴方向
-                             interpolation='gaussian',  # 添加渐变过渡 gaussian bicubic
+                             interpolation='bicubic',  # 添加渐变过渡 gaussian bicubic
                              vmin=vmin, 
                              vmax=vmax)
                 ax.set_title(f"{model_name} - {length} steps")
@@ -109,7 +109,7 @@ def plot_heatmaps(root_dir, output_dir):
                     label='RMSE (°C)')
         
         # 保存图片
-        plt.savefig(os.path.join(output_dir, f"{region}_heatmaps-4.png"),
+        plt.savefig(os.path.join(output_dir, f"{region}_heatmaps-5.png"),
                    bbox_inches='tight', dpi=300)
         plt.close()
 

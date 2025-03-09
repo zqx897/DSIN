@@ -12,3 +12,7 @@ datasets/
 __pycache__/
 
 result.txt
+
+Plot/
+
+RMSE_Plot/
